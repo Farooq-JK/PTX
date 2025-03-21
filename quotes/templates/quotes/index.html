@@ -1,0 +1,327 @@
+{% extends "quotes/base.html" %}
+{% load static %}
+{% block title %}Material Costing Sheet{% endblock %}
+
+{% block header %}
+    <h1 class="page-title">Material Costing Sheet</h1>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .summary-heading {
+        text-align: center;
+        margin: 2rem 0 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="table-wrapper">
+        <form id="quoteForm" method="POST" action="{% url 'index' %}" autocomplete="off" onsubmit="return false;">
+            {% csrf_token %}
+            <div id="page1" class="page active">
+                <h3>Item Details</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Item Number</th>
+                                <th>Description</th>
+                                <th>Customer Part Number</th>
+                                <th>Manufacturer</th>
+                                <th>Manufacturer's Part Number</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" name="item_number" placeholder="Enter item number" class="form-control"></td>
+                                <td><input type="text" name="description" placeholder="Enter description" class="form-control"></td>
+                                <td><input type="text" name="customer_part_number" placeholder="Enter customer part number" class="form-control"></td>
+                                <td><input type="text" name="manufacturer" placeholder="Enter manufacturer" class="form-control"></td>
+                                <td><input type="text" name="manufacturer_part_number" placeholder="Enter manufacturer's part number" class="form-control"></td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItemRow(this)">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-success" onclick="addItemRow(1)">
+                        <i class="fas fa-plus"></i> Add Item
+                    </button>
+                </div>
+            </div>
+            <div id="page2" class="page">
+                <h3>Assembly Quantity</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>per Assembly</th>
+                                <th>Units</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="number" placeholder="Enter quantity per assembly" name="assembly_qty" class="form-control"></td>
+                                <td><input type="text" placeholder="Enter units (e.g., EA, KG)" name="units" class="form-control"></td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItemRow(this)">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-success" onclick="addItemRow(2)">
+                        <i class="fas fa-plus"></i> Add Item
+                    </button>
+                </div>
+            </div>
+            <div id="page3" class="page">
+                <h3>Assembly Quantity: 1</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Quantity Required</th>
+                                <th>Unit Cost (£)</th>
+                                <th>Extended Cost (£)</th>
+                                <th>MOQ</th>
+                                <th>Excess MOQ Cost (£)</th>
+                                <th>Total Cost (£)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="number" name="quantity_required" placeholder="Quantity Required" class="form-control"></td>
+                                <td><input type="number" step="0.01" name="unit_cost" placeholder="Unit Cost" class="form-control"></td>
+                                <td><input type="number" step="0.01" name="extended_cost" placeholder="Extended Cost" class="form-control" readonly></td>
+                                <td><input type="number" name="moq" placeholder="MOQ" class="form-control"></td>
+                                <td><input type="number" step="0.01" name="excess_moq_cost" placeholder="Excess MOQ Cost" class="form-control"></td>
+                                <td><input type="number" step="0.01" name="total_cost" placeholder="Total Cost" class="form-control" readonly></td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItemRow(this)">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-success" onclick="addItemRow(3)">
+                        <i class="fas fa-plus"></i> Add Item
+                    </button>
+                </div>
+
+                <h3 class="mt-4 summary-heading">Summary</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>Total Basic Material Cost (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="total_basic_cost" class="form-control" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>Plus Material Overhead (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="material_overhead" class="form-control"></td>
+                            </tr>
+                            <tr>
+                                <td>Plus Warranty (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="warranty_cost" class="form-control"></td>
+                            </tr>
+                            <tr>
+                                <td>Material Cost Per Unit (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="material_cost_per_unit" class="form-control" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>Per Unit Cost inc Profit (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="per_unit_cost_inc_profit" class="form-control" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>Total MOQ Cost (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="total_moq_cost" class="form-control" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>Per Unit MOQ Cost (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="per_unit_moq_cost" class="form-control" readonly></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="page4" class="page">
+                <h3>Assembly Quantity: 15</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Quantity Required</th>
+                                <th>Unit Cost (£)</th>
+                                <th>Extended Cost (£)</th>
+                                <th>MOQ</th>
+                                <th>Excess MOQ Cost (£)</th>
+                                <th>Total Cost (£)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="number" name="quantity_required_15" placeholder="Quantity Required" class="form-control"></td>
+                                <td><input type="number" step="0.01" name="unit_cost_15" placeholder="Unit Cost" class="form-control"></td>
+                                <td><input type="number" step="0.01" name="extended_cost_15" placeholder="Extended Cost" class="form-control" readonly></td>
+                                <td><input type="number" name="moq_15" placeholder="MOQ" class="form-control"></td>
+                                <td><input type="number" step="0.01" name="excess_moq_cost_15" placeholder="Excess MOQ Cost" class="form-control"></td>
+                                <td><input type="number" step="0.01" name="total_cost_15" placeholder="Total Cost" class="form-control" readonly></td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItemRow(this)">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-success" onclick="addItemRow(4)">
+                        <i class="fas fa-plus"></i> Add Item
+                    </button>
+                </div>
+
+                <h3 class="mt-4 summary-heading">Summary</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>Total Basic Material Cost (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="total_basic_cost_15" class="form-control" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>Plus Material Overhead (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="material_overhead_15" class="form-control"></td>
+                            </tr>
+                            <tr>
+                                <td>Plus Warranty (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="warranty_cost_15" class="form-control"></td>
+                            </tr>
+                            <tr>
+                                <td>Material Cost Per Unit (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="material_cost_per_unit_15" class="form-control" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>Per Unit Cost inc Profit (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="per_unit_cost_inc_profit_15" class="form-control" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>Total MOQ Cost (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="total_moq_cost_15" class="form-control" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>Per Unit MOQ Cost (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="per_unit_moq_cost_15" class="form-control" readonly></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="page5" class="page">
+                <h3>Supplier Information & Charges</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Supplier / Stock Qty</th>
+                                <th>Date Checked</th>
+                                <th>Leadtime (Days)</th>
+                                <th>Delivery Charge (£)</th>
+                                <th>C of C Charge (£)</th>
+                                <th>Tooling Charge (£)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" placeholder="Enter supplier" name="supplier" class="form-control"></td>
+                                <td><input type="date" name="date_checked" class="form-control"></td>
+                                <td><input type="number" placeholder="Enter lead time" name="lead_time" class="form-control"></td>
+                                <td><input type="number" step="0.01" placeholder="Enter delivery charge" name="delivery_charge" class="form-control"></td>
+                                <td><input type="number" step="0.01" placeholder="Enter C of C charge" name="coc_charge" class="form-control"></td>
+                                <td><input type="number" step="0.01" placeholder="Enter tooling charge" name="tooling_charge" class="form-control"></td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItemRow(this)">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-success" onclick="addItemRow(5)">
+                        <i class="fas fa-plus"></i> Add Item
+                    </button>
+                </div>
+
+                <h3 class="mt-4 summary-heading">Summary</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>Delivery Charges Total (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="delivery_charges_total" class="form-control" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>C of C Charges Total (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="coc_charges_total" class="form-control" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>Tooling Charges Total (£)</td>
+                                <td><input type="number" step="0.01" placeholder="0.00" name="tooling_charges_total" class="form-control" readonly></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="page6" class="page">
+                <h3>Comments</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="width: 85%">Comments</th>
+                                <th style="width: 15%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 15px;">
+                                    <textarea name="comments_1" placeholder="Add any additional notes here..." class="form-control" style="width: 100%; min-height: 100px; resize: vertical; margin-bottom: 0;"></textarea>
+                                </td>
+                                <td style="vertical-align: middle; text-align: center;">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItemRow(this)">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 10px;">
+                        <button type="button" class="btn btn-success" onclick="addItemRow(6)">
+                            <i class="fas fa-plus"></i> Add Comment
+                        </button>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button type="button" class="btn btn-primary" onclick="goToPage(1)">
+                        <i class="fas fa-arrow-left"></i> Back to Page 1
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block footer_buttons %}
+    <button id="prevBtn" onclick="navigatePages(-1)" style="visibility: hidden;" class="btn btn-primary">Previous</button>
+    <span class="page-number">Page 1 of 6</span>
+    <button id="nextBtn" onclick="navigatePages(1)" class="btn btn-primary">Next</button>
+{% endblock %}

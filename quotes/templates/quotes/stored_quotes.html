@@ -1,0 +1,100 @@
+{% extends "quotes/base.html" %}
+
+{% load static %}
+
+{% block title %}Stored Quotes{% endblock %}
+
+{% block header %}
+    <h1 class="page-title">Stored Quotes</h1>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .table-wrapper {
+        margin: 20px;
+        overflow-x: auto;
+    }
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+    .table td, .table th {
+        padding: 12px;
+        border: 1px solid #dee2e6;
+    }
+    .table td:first-child {
+        text-align: center;
+        width: 50px;
+    }
+    .btn-sm {
+        margin: 0;
+        padding: 0.15rem 0.3rem;
+        font-size: 0.7rem;
+        line-height: 1;
+        display: inline-block;
+    }
+    .btn-sm i {
+        margin-right: 2px;
+        font-size: 0.7rem;
+    }
+    .actions-cell {
+        white-space: nowrap;
+        padding: 6px !important;
+        text-align: center;
+        min-width: 280px;
+    }
+    .actions-cell .btn {
+        min-width: 85px;
+        margin: 0;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.65rem;
+    }
+    .actions-cell .btn i {
+        font-size: 0.65rem;
+        margin-right: 2px;
+    }
+    .actions-group {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="table-wrapper">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Item Number</th>
+                    <th>Description</th>
+                    <th>Customer <br>Part Number</th>
+                    <th>Manufacturer</th>
+                    <th>Manufacturer's <br>Part Number</th>
+                    <th>Total Cost</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="quote-table-body">
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block footer_buttons %}
+    <a href="{% url 'index' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Create New Quote
+    </a>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
+{% endblock %}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Protronix Quote Generator{% endblock %}</title>
+    {% load static %}
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/stored_quotes.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <a href="{% url 'stored_quotes' %}">
+                <img src="{% static 'images/protronix_logo.png' %}" alt="Protronix Logo" class="logo">
+            </a>
+        </div>
+    <div class="navbar-right">
+        <a href="{% url 'index' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">Create New Quote</a>
+        <a href="{% url 'stored_quotes' %}" class="nav-link {% if request.path == '/stored_quotes/' %}active{% endif %}">Stored Quotes</a>
+        
+    </div>
+    </nav>
+
+    <div class="container">
+        <header class="header">
+            {% block header %}{% endblock %}
+        </header>
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+        <footer class="footer">
+            {% block footer_buttons %}{% endblock %}
+        </footer>
+    </div>
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p>© 2025 Created by Aistidh with Love. All rights reserved. | <a href="https://www.protronix-uk.com" target="_blank" class="footer-link">https://www.protronix-uk.com</a></p>
+        </div>
+    </footer>
+    {% block extra_scripts %}{% endblock %}
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
